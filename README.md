@@ -7,7 +7,6 @@
 ![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12-3776AB?logo=python&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-Machine_Learning-F7931E?logo=scikitlearn&logoColor=white)
 ![Models](https://img.shields.io/badge/Models-Decision_Tree_%26_SVM-555555)
-![Tests](https://img.shields.io/badge/Local_Tests-16_Passed-555555)
 
 [![CI](https://github.com/tangerineYR/telco-churn-ml/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/tangerineYR/telco-churn-ml/actions/workflows/ci.yml)
 
