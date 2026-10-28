@@ -1,0 +1,12 @@
+historical-private/
+data/
+*.zip
+__pycache__/
+*.py[cod]
+.venv/
+.cache/
+work/
+*.egg-info/
+results-old/
+results-new/
+results-rerun/

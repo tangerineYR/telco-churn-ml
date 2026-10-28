@@ -1,0 +1,570 @@
+{
+  "dataset": {
+    "raw_rows": 7043,
+    "column_count": 21,
+    "columns": [
+      "customerID",
+      "gender",
+      "SeniorCitizen",
+      "Partner",
+      "Dependents",
+      "tenure",
+      "PhoneService",
+      "MultipleLines",
+      "InternetService",
+      "OnlineSecurity",
+      "OnlineBackup",
+      "DeviceProtection",
+      "TechSupport",
+      "StreamingTV",
+      "StreamingMovies",
+      "Contract",
+      "PaperlessBilling",
+      "PaymentMethod",
+      "MonthlyCharges",
+      "TotalCharges",
+      "Churn"
+    ],
+    "removed_rows": 11,
+    "retained_rows": 7032,
+    "target_classes": [
+      "No",
+      "Yes"
+    ],
+    "duplicate_customerID_count": 0,
+    "missing_or_blank_before_conversion": {
+      "customerID": 0,
+      "gender": 0,
+      "SeniorCitizen": 0,
+      "Partner": 0,
+      "Dependents": 0,
+      "tenure": 0,
+      "PhoneService": 0,
+      "MultipleLines": 0,
+      "InternetService": 0,
+      "OnlineSecurity": 0,
+      "OnlineBackup": 0,
+      "DeviceProtection": 0,
+      "TechSupport": 0,
+      "StreamingTV": 0,
+      "StreamingMovies": 0,
+      "Contract": 0,
+      "PaperlessBilling": 0,
+      "PaymentMethod": 0,
+      "MonthlyCharges": 0,
+      "TotalCharges": 11,
+      "Churn": 0
+    },
+    "TotalCharges_invalid_after_conversion": 11,
+    "raw_distribution": {
+      "negative": 5174,
+      "positive": 1869,
+      "positive_fraction": 0.2653698707936959
+    },
+    "cleaned_distribution": {
+      "negative": 5163,
+      "positive": 1869,
+      "positive_fraction": 0.26578498293515357
+    },
+    "sha256": "16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91",
+    "file_size_bytes": 970457,
+    "provenance": {
+      "source_url": "https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv",
+      "access_date": "2026-10-28",
+      "sha256": "16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91",
+      "file_size_bytes": 970457,
+      "original_rows": 7043,
+      "columns": [
+        "customerID",
+        "gender",
+        "SeniorCitizen",
+        "Partner",
+        "Dependents",
+        "tenure",
+        "PhoneService",
+        "MultipleLines",
+        "InternetService",
+        "OnlineSecurity",
+        "OnlineBackup",
+        "DeviceProtection",
+        "TechSupport",
+        "StreamingTV",
+        "StreamingMovies",
+        "Contract",
+        "PaperlessBilling",
+        "PaymentMethod",
+        "MonthlyCharges",
+        "TotalCharges",
+        "Churn"
+      ],
+      "historical_match": "21 columns, 7043 rows, 11 blank TotalCharges and displayed head/tail agree; historical CSV absent so byte identity cannot be established."
+    }
+  },
+  "design": {
+    "experiment_type": "holdout_evaluation",
+    "seed": 42,
+    "groups": [
+      "decision_tree",
+      "linear_svm",
+      "rbf_svm",
+      "baselines"
+    ],
+    "test_fraction": 0.3,
+    "split": {
+      "stratified": true,
+      "train_rows": 4922,
+      "test_rows": 2110,
+      "train_distribution": {
+        "negative": 3614,
+        "positive": 1308,
+        "positive_fraction": 0.2657456318569687
+      },
+      "test_distribution": {
+        "negative": 1549,
+        "positive": 561,
+        "positive_fraction": 0.26587677725118486
+      },
+      "train_index_sha256": "d8e0756a74fad490fc24cf7ff75914efb11bd6fe66021d00fb7bede0eb9ab132",
+      "test_index_sha256": "b60ee2cbbd1cf3414e92b5acc611a9b862f544cf02bec7f34a3495734537343f"
+    },
+    "cv": {
+      "type": "StratifiedKFold",
+      "n_splits": 5,
+      "shuffle": true,
+      "random_state": 42
+    },
+    "selection": "maximum mean CV average precision; exact ties use first ParameterGrid index",
+    "preprocessing": {
+      "numeric": "StandardScaler",
+      "categorical": "OneHotEncoder, dense, no drop, ignore unknown",
+      "SeniorCitizen": "categorical binary indicator",
+      "customerID": "excluded"
+    },
+    "rfe": {
+      "estimator": "LogisticRegression",
+      "solver": "lbfgs",
+      "max_iter": 5000,
+      "step": 1,
+      "n_features_to_select": 20,
+      "scope": "inside every CV training fold"
+    },
+    "baselines": "all transformed features; LogisticRegression class_weight=None",
+    "linear_svc_solver": "dual=auto; C=[0.1,1,10]; max_iter=[1000,5000,10000]",
+    "positive_class": "Yes=1",
+    "metric_policy": "zero_division=0; AP is average precision, not trapezoidal PR area",
+    "test_policy": "all candidates fixed before evaluation; default predict thresholds; no test-based selection"
+  },
+  "models": {
+    "decision_tree": {
+      "test": {
+        "accuracy": 0.7293838862559242,
+        "precision": 0.49110320284697506,
+        "recall": 0.4919786096256685,
+        "f1": 0.4915405164737311,
+        "roc_auc": 0.6596959225030467,
+        "average_precision": 0.3815215590606006,
+        "confusion_matrix": [
+          [
+            1263,
+            286
+          ],
+          [
+            285,
+            276
+          ]
+        ],
+        "predicted_positive_count": 562
+      },
+      "score_type": "predict_proba (not calibration-validated)",
+      "features": {
+        "original_transformed_feature_count": 46,
+        "selected_feature_count": 20,
+        "selected_feature_names": [
+          "numeric__tenure",
+          "numeric__MonthlyCharges",
+          "numeric__TotalCharges",
+          "categorical__MultipleLines_No",
+          "categorical__InternetService_DSL",
+          "categorical__InternetService_Fiber optic",
+          "categorical__InternetService_No",
+          "categorical__OnlineSecurity_No internet service",
+          "categorical__OnlineSecurity_Yes",
+          "categorical__OnlineBackup_No internet service",
+          "categorical__DeviceProtection_No internet service",
+          "categorical__TechSupport_No internet service",
+          "categorical__TechSupport_Yes",
+          "categorical__StreamingTV_No",
+          "categorical__StreamingTV_No internet service",
+          "categorical__StreamingMovies_No",
+          "categorical__StreamingMovies_No internet service",
+          "categorical__Contract_Month-to-month",
+          "categorical__Contract_Two year",
+          "categorical__PaperlessBilling_No"
+        ],
+        "feature_setting": "RFE20"
+      }
+    },
+    "decision_tree_tuned": {
+      "test": {
+        "accuracy": 0.7758293838862559,
+        "precision": 0.5956521739130435,
+        "recall": 0.48841354723707664,
+        "f1": 0.5367286973555337,
+        "roc_auc": 0.808189746935807,
+        "average_precision": 0.5848926934580354,
+        "confusion_matrix": [
+          [
+            1363,
+            186
+          ],
+          [
+            287,
+            274
+          ]
+        ],
+        "predicted_positive_count": 460
+      },
+      "score_type": "predict_proba (not calibration-validated)",
+      "features": {
+        "original_transformed_feature_count": 46,
+        "selected_feature_count": 20,
+        "selected_feature_names": [
+          "numeric__tenure",
+          "numeric__MonthlyCharges",
+          "numeric__TotalCharges",
+          "categorical__MultipleLines_No",
+          "categorical__InternetService_DSL",
+          "categorical__InternetService_Fiber optic",
+          "categorical__InternetService_No",
+          "categorical__OnlineSecurity_No internet service",
+          "categorical__OnlineSecurity_Yes",
+          "categorical__OnlineBackup_No internet service",
+          "categorical__DeviceProtection_No internet service",
+          "categorical__TechSupport_No internet service",
+          "categorical__TechSupport_Yes",
+          "categorical__StreamingTV_No",
+          "categorical__StreamingTV_No internet service",
+          "categorical__StreamingMovies_No",
+          "categorical__StreamingMovies_No internet service",
+          "categorical__Contract_Month-to-month",
+          "categorical__Contract_Two year",
+          "categorical__PaperlessBilling_No"
+        ],
+        "feature_setting": "RFE20"
+      },
+      "best_parameters": {
+        "classifier__criterion": "entropy",
+        "classifier__max_depth": 7,
+        "classifier__min_samples_leaf": 4,
+        "classifier__min_samples_split": 10
+      },
+      "best_cv_ap": 0.6147530119568438,
+      "best_index": 62,
+      "configuration_count": 72
+    },
+    "linear_svm": {
+      "test": {
+        "accuracy": 0.8009478672985783,
+        "precision": 0.650319829424307,
+        "recall": 0.5436720142602496,
+        "f1": 0.5922330097087378,
+        "roc_auc": 0.8334547387826543,
+        "average_precision": 0.6161203292030636,
+        "confusion_matrix": [
+          [
+            1385,
+            164
+          ],
+          [
+            256,
+            305
+          ]
+        ],
+        "predicted_positive_count": 469
+      },
+      "score_type": "decision_function (not calibrated probability)",
+      "features": {
+        "original_transformed_feature_count": 46,
+        "selected_feature_count": 20,
+        "selected_feature_names": [
+          "numeric__tenure",
+          "numeric__MonthlyCharges",
+          "numeric__TotalCharges",
+          "categorical__MultipleLines_No",
+          "categorical__InternetService_DSL",
+          "categorical__InternetService_Fiber optic",
+          "categorical__InternetService_No",
+          "categorical__OnlineSecurity_No internet service",
+          "categorical__OnlineSecurity_Yes",
+          "categorical__OnlineBackup_No internet service",
+          "categorical__DeviceProtection_No internet service",
+          "categorical__TechSupport_No internet service",
+          "categorical__TechSupport_Yes",
+          "categorical__StreamingTV_No",
+          "categorical__StreamingTV_No internet service",
+          "categorical__StreamingMovies_No",
+          "categorical__StreamingMovies_No internet service",
+          "categorical__Contract_Month-to-month",
+          "categorical__Contract_Two year",
+          "categorical__PaperlessBilling_No"
+        ],
+        "feature_setting": "RFE20"
+      }
+    },
+    "linear_svm_tuned": {
+      "test": {
+        "accuracy": 0.8009478672985783,
+        "precision": 0.650319829424307,
+        "recall": 0.5436720142602496,
+        "f1": 0.5922330097087378,
+        "roc_auc": 0.8334639448830767,
+        "average_precision": 0.616090178159361,
+        "confusion_matrix": [
+          [
+            1385,
+            164
+          ],
+          [
+            256,
+            305
+          ]
+        ],
+        "predicted_positive_count": 469
+      },
+      "score_type": "decision_function (not calibrated probability)",
+      "features": {
+        "original_transformed_feature_count": 46,
+        "selected_feature_count": 20,
+        "selected_feature_names": [
+          "numeric__tenure",
+          "numeric__MonthlyCharges",
+          "numeric__TotalCharges",
+          "categorical__MultipleLines_No",
+          "categorical__InternetService_DSL",
+          "categorical__InternetService_Fiber optic",
+          "categorical__InternetService_No",
+          "categorical__OnlineSecurity_No internet service",
+          "categorical__OnlineSecurity_Yes",
+          "categorical__OnlineBackup_No internet service",
+          "categorical__DeviceProtection_No internet service",
+          "categorical__TechSupport_No internet service",
+          "categorical__TechSupport_Yes",
+          "categorical__StreamingTV_No",
+          "categorical__StreamingTV_No internet service",
+          "categorical__StreamingMovies_No",
+          "categorical__StreamingMovies_No internet service",
+          "categorical__Contract_Month-to-month",
+          "categorical__Contract_Two year",
+          "categorical__PaperlessBilling_No"
+        ],
+        "feature_setting": "RFE20"
+      },
+      "best_parameters": {
+        "classifier__C": 10,
+        "classifier__max_iter": 1000
+      },
+      "best_cv_ap": 0.6538164861185113,
+      "best_index": 6,
+      "configuration_count": 9
+    },
+    "rbf_svm": {
+      "test": {
+        "accuracy": 0.7872037914691943,
+        "precision": 0.6513513513513514,
+        "recall": 0.4295900178253119,
+        "f1": 0.5177228786251342,
+        "roc_auc": 0.7894265635123114,
+        "average_precision": 0.6091483375293185,
+        "confusion_matrix": [
+          [
+            1420,
+            129
+          ],
+          [
+            320,
+            241
+          ]
+        ],
+        "predicted_positive_count": 370
+      },
+      "score_type": "decision_function (not calibrated probability)",
+      "features": {
+        "original_transformed_feature_count": 46,
+        "selected_feature_count": 20,
+        "selected_feature_names": [
+          "numeric__tenure",
+          "numeric__MonthlyCharges",
+          "numeric__TotalCharges",
+          "categorical__MultipleLines_No",
+          "categorical__InternetService_DSL",
+          "categorical__InternetService_Fiber optic",
+          "categorical__InternetService_No",
+          "categorical__OnlineSecurity_No internet service",
+          "categorical__OnlineSecurity_Yes",
+          "categorical__OnlineBackup_No internet service",
+          "categorical__DeviceProtection_No internet service",
+          "categorical__TechSupport_No internet service",
+          "categorical__TechSupport_Yes",
+          "categorical__StreamingTV_No",
+          "categorical__StreamingTV_No internet service",
+          "categorical__StreamingMovies_No",
+          "categorical__StreamingMovies_No internet service",
+          "categorical__Contract_Month-to-month",
+          "categorical__Contract_Two year",
+          "categorical__PaperlessBilling_No"
+        ],
+        "feature_setting": "RFE20"
+      }
+    },
+    "dummy": {
+      "test": {
+        "accuracy": 0.7341232227488151,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "roc_auc": 0.5,
+        "average_precision": 0.26587677725118486,
+        "confusion_matrix": [
+          [
+            1549,
+            0
+          ],
+          [
+            561,
+            0
+          ]
+        ],
+        "predicted_positive_count": 0
+      },
+      "score_type": "predict_proba (not calibration-validated)",
+      "features": {
+        "original_transformed_feature_count": 46,
+        "selected_feature_count": 46,
+        "selected_feature_names": [
+          "numeric__tenure",
+          "numeric__MonthlyCharges",
+          "numeric__TotalCharges",
+          "categorical__gender_Female",
+          "categorical__gender_Male",
+          "categorical__SeniorCitizen_0",
+          "categorical__SeniorCitizen_1",
+          "categorical__Partner_No",
+          "categorical__Partner_Yes",
+          "categorical__Dependents_No",
+          "categorical__Dependents_Yes",
+          "categorical__PhoneService_No",
+          "categorical__PhoneService_Yes",
+          "categorical__MultipleLines_No",
+          "categorical__MultipleLines_No phone service",
+          "categorical__MultipleLines_Yes",
+          "categorical__InternetService_DSL",
+          "categorical__InternetService_Fiber optic",
+          "categorical__InternetService_No",
+          "categorical__OnlineSecurity_No",
+          "categorical__OnlineSecurity_No internet service",
+          "categorical__OnlineSecurity_Yes",
+          "categorical__OnlineBackup_No",
+          "categorical__OnlineBackup_No internet service",
+          "categorical__OnlineBackup_Yes",
+          "categorical__DeviceProtection_No",
+          "categorical__DeviceProtection_No internet service",
+          "categorical__DeviceProtection_Yes",
+          "categorical__TechSupport_No",
+          "categorical__TechSupport_No internet service",
+          "categorical__TechSupport_Yes",
+          "categorical__StreamingTV_No",
+          "categorical__StreamingTV_No internet service",
+          "categorical__StreamingTV_Yes",
+          "categorical__StreamingMovies_No",
+          "categorical__StreamingMovies_No internet service",
+          "categorical__StreamingMovies_Yes",
+          "categorical__Contract_Month-to-month",
+          "categorical__Contract_One year",
+          "categorical__Contract_Two year",
+          "categorical__PaperlessBilling_No",
+          "categorical__PaperlessBilling_Yes",
+          "categorical__PaymentMethod_Bank transfer (automatic)",
+          "categorical__PaymentMethod_Credit card (automatic)",
+          "categorical__PaymentMethod_Electronic check",
+          "categorical__PaymentMethod_Mailed check"
+        ],
+        "feature_setting": "all_transformed"
+      }
+    },
+    "logistic": {
+      "test": {
+        "accuracy": 0.8056872037914692,
+        "precision": 0.6556701030927835,
+        "recall": 0.5668449197860963,
+        "f1": 0.6080305927342257,
+        "roc_auc": 0.8378673377913874,
+        "average_precision": 0.617198956450662,
+        "confusion_matrix": [
+          [
+            1382,
+            167
+          ],
+          [
+            243,
+            318
+          ]
+        ],
+        "predicted_positive_count": 485
+      },
+      "score_type": "decision_function (not calibrated probability)",
+      "features": {
+        "original_transformed_feature_count": 46,
+        "selected_feature_count": 46,
+        "selected_feature_names": [
+          "numeric__tenure",
+          "numeric__MonthlyCharges",
+          "numeric__TotalCharges",
+          "categorical__gender_Female",
+          "categorical__gender_Male",
+          "categorical__SeniorCitizen_0",
+          "categorical__SeniorCitizen_1",
+          "categorical__Partner_No",
+          "categorical__Partner_Yes",
+          "categorical__Dependents_No",
+          "categorical__Dependents_Yes",
+          "categorical__PhoneService_No",
+          "categorical__PhoneService_Yes",
+          "categorical__MultipleLines_No",
+          "categorical__MultipleLines_No phone service",
+          "categorical__MultipleLines_Yes",
+          "categorical__InternetService_DSL",
+          "categorical__InternetService_Fiber optic",
+          "categorical__InternetService_No",
+          "categorical__OnlineSecurity_No",
+          "categorical__OnlineSecurity_No internet service",
+          "categorical__OnlineSecurity_Yes",
+          "categorical__OnlineBackup_No",
+          "categorical__OnlineBackup_No internet service",
+          "categorical__OnlineBackup_Yes",
+          "categorical__DeviceProtection_No",
+          "categorical__DeviceProtection_No internet service",
+          "categorical__DeviceProtection_Yes",
+          "categorical__TechSupport_No",
+          "categorical__TechSupport_No internet service",
+          "categorical__TechSupport_Yes",
+          "categorical__StreamingTV_No",
+          "categorical__StreamingTV_No internet service",
+          "categorical__StreamingTV_Yes",
+          "categorical__StreamingMovies_No",
+          "categorical__StreamingMovies_No internet service",
+          "categorical__StreamingMovies_Yes",
+          "categorical__Contract_Month-to-month",
+          "categorical__Contract_One year",
+          "categorical__Contract_Two year",
+          "categorical__PaperlessBilling_No",
+          "categorical__PaperlessBilling_Yes",
+          "categorical__PaymentMethod_Bank transfer (automatic)",
+          "categorical__PaymentMethod_Credit card (automatic)",
+          "categorical__PaymentMethod_Electronic check",
+          "categorical__PaymentMethod_Mailed check"
+        ],
+        "feature_setting": "all_transformed"
+      }
+    }
+  }
+}

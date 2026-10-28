@@ -1,0 +1,5 @@
+# Preserve recorded source and experiment artifact checksums.
+telco_churn/*.py -text
+scripts/*.py -text
+results/*.json -text
+results/*.csv -text

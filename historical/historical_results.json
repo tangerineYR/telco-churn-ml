@@ -1,0 +1,120 @@
+{
+  "evidence_kind": "Saved course experiment outputs; not independently reproduced under the current evaluation protocol",
+  "cell_indexing": "zero based",
+  "individual_contribution": "Decision Tree and SVM",
+  "decision_tree_svm": [
+    {
+      "model": "Decision Tree",
+      "notebook": "Decision Tree and SVM course notebook",
+      "cell": 21,
+      "accuracy": 0.7331753554502369,
+      "positive_precision_rounded": 0.5,
+      "positive_recall_rounded": 0.5,
+      "positive_f1_rounded": 0.5
+    },
+    {
+      "model": "Tuned Decision Tree",
+      "notebook": "Decision Tree and SVM course notebook",
+      "cell": 25,
+      "accuracy": 0.790521327014218,
+      "positive_precision_rounded": 0.62,
+      "positive_recall_rounded": 0.53,
+      "positive_f1_rounded": 0.57
+    },
+    {
+      "model": "RBF SVM",
+      "notebook": "Decision Tree and SVM course notebook",
+      "cell": 30,
+      "accuracy": 0.7341232227488151,
+      "positive_precision_rounded": 0,
+      "positive_recall_rounded": 0,
+      "positive_f1_rounded": 0
+    },
+    {
+      "model": "LinearSVC",
+      "notebook": "Decision Tree and SVM course notebook",
+      "cell": 33,
+      "accuracy": 0.7943127962085308,
+      "positive_precision_rounded": 0.65,
+      "positive_recall_rounded": 0.48,
+      "positive_f1_rounded": 0.55
+    },
+    {
+      "model": "Tuned LinearSVC",
+      "notebook": "Decision Tree and SVM course notebook",
+      "cell": 37,
+      "accuracy": 0.7962085308056872,
+      "positive_precision_rounded": 0.66,
+      "positive_recall_rounded": 0.49,
+      "positive_f1_rounded": 0.56
+    }
+  ],
+  "team": [
+    {
+      "model": "Bagging",
+      "notebook": "Ensemble methods course notebook",
+      "cell": 34,
+      "accuracy_rounded": 0.794
+    },
+    {
+      "model": "Random Forest",
+      "notebook": "Ensemble methods course notebook",
+      "cell": 38,
+      "accuracy_rounded": 0.782
+    },
+    {
+      "model": "AdaBoost",
+      "notebook": "Ensemble methods course notebook",
+      "cell": 42,
+      "accuracy_rounded": 0.797
+    },
+    {
+      "model": "LightGBM",
+      "notebook": "Ensemble methods course notebook",
+      "cell": 53,
+      "accuracy_rounded": 0.755
+    },
+    {
+      "model": "XGBoost",
+      "notebook": "Ensemble methods course notebook",
+      "cell": 54,
+      "accuracy_rounded": 0.758
+    },
+    {
+      "model": "Soft Voting Ensemble (Ada/RF/LGB/XGB)",
+      "notebook": "Ensemble methods course notebook",
+      "cell": 58,
+      "accuracy_rounded": 0.786
+    },
+    {
+      "model": "KNN",
+      "notebook": "Feature selection, PCA and KNN course notebook",
+      "cell": 32,
+      "accuracy": 0.7824644549763033,
+      "best_k": 20
+    },
+    {
+      "model": "PCA7 + KNN",
+      "notebook": "Feature selection, PCA and KNN course notebook",
+      "cell": 32,
+      "accuracy": 0.7791469194312797,
+      "best_k": 17
+    }
+  ],
+  "adaboost_auc": {
+    "notebook": "Ensemble methods course notebook",
+    "cell": 49,
+    "saved_output": "AdaBoost ROC‐AUC: 0.847",
+    "rounded_roc_auc": 0.847
+  },
+  "source_findings": {
+    "split": "All three notebooks use stratify=y and random_state=0, test_size=0.3",
+    "rfe": "All-data StandardScaler + LogisticRegression RFE(n_features_to_select=1), ranking.head(20)",
+    "dt_svm_input": "Cell 17 slices first column out, leaving 19 input features; dropped feature is tenure",
+    "svm": "Cell 18 creates scaled matrices but SVM cells 30/33/35 use unscaled X_train",
+    "tree_plot": "Cell 27 fits a separate tree with random_state=1 and passes 20 names for 19 inputs",
+    "grid": "DT 72 combinations selected by accuracy; LinearSVC 9 combinations uses default estimator accuracy",
+    "voting": "Cell 58 imports StackingClassifier but instantiates VotingClassifier(voting=soft); not stacking",
+    "extra_team_issue": "Ensemble cells 23/25 train KNN/logistic on scaled inputs then predict on unscaled X_test; historical metrics require caution"
+  }
+}

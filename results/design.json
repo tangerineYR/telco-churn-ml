@@ -1,0 +1,54 @@
+{
+  "experiment_type": "holdout_evaluation",
+  "seed": 42,
+  "groups": [
+    "decision_tree",
+    "linear_svm",
+    "rbf_svm",
+    "baselines"
+  ],
+  "test_fraction": 0.3,
+  "split": {
+    "stratified": true,
+    "train_rows": 4922,
+    "test_rows": 2110,
+    "train_distribution": {
+      "negative": 3614,
+      "positive": 1308,
+      "positive_fraction": 0.2657456318569687
+    },
+    "test_distribution": {
+      "negative": 1549,
+      "positive": 561,
+      "positive_fraction": 0.26587677725118486
+    },
+    "train_index_sha256": "d8e0756a74fad490fc24cf7ff75914efb11bd6fe66021d00fb7bede0eb9ab132",
+    "test_index_sha256": "b60ee2cbbd1cf3414e92b5acc611a9b862f544cf02bec7f34a3495734537343f"
+  },
+  "cv": {
+    "type": "StratifiedKFold",
+    "n_splits": 5,
+    "shuffle": true,
+    "random_state": 42
+  },
+  "selection": "maximum mean CV average precision; exact ties use first ParameterGrid index",
+  "preprocessing": {
+    "numeric": "StandardScaler",
+    "categorical": "OneHotEncoder, dense, no drop, ignore unknown",
+    "SeniorCitizen": "categorical binary indicator",
+    "customerID": "excluded"
+  },
+  "rfe": {
+    "estimator": "LogisticRegression",
+    "solver": "lbfgs",
+    "max_iter": 5000,
+    "step": 1,
+    "n_features_to_select": 20,
+    "scope": "inside every CV training fold"
+  },
+  "baselines": "all transformed features; LogisticRegression class_weight=None",
+  "linear_svc_solver": "dual=auto; C=[0.1,1,10]; max_iter=[1000,5000,10000]",
+  "positive_class": "Yes=1",
+  "metric_policy": "zero_division=0; AP is average precision, not trapezoidal PR area",
+  "test_policy": "all candidates fixed before evaluation; default predict thresholds; no test-based selection"
+}
