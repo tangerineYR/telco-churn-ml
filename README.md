@@ -1,8 +1,12 @@
+<div align="center">
+    
 # Telco Customer Churn Prediction
 
 ### Decision Tree · Support Vector Machine · Leakage-safe Machine Learning
 
 **통신사 고객 이탈을 예측하기 위해 Decision Tree와 SVM을 구현·튜닝한 3인 팀 기계학습 프로젝트입니다. 특성 선택, 교차검증, 모델별 성능 비교를 수행했으며, 현재 구현은 데이터 누수를 방지하는 재현 가능한 평가 파이프라인을 제공합니다.**
+
+<br/>
 
 ![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12-3776AB?logo=python&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-Machine_Learning-F7931E?logo=scikitlearn&logoColor=white)
@@ -12,6 +16,7 @@
 
 **[Results](results/metrics.json)** · **[CV Search](results/cv_search_results.csv)** · **[Selected Features](results/selected_features.json)** · **[Reproduction Guide](RUNBOOK.md)**
 
+</div>
 ---
 
 ## 📌 Overview
