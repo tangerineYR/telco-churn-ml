@@ -536,4 +536,8 @@ python -m scripts.validate_artifacts results-rerun --full
 
 ---
 
+<div align="center">
+    
 **From model experimentation to trustworthy, reproducible evaluation.**
+
+</div>
