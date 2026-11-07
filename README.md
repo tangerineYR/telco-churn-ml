@@ -66,11 +66,12 @@ IBM Telco Customer Churn 데이터를 활용해 고객 이탈 여부(`Churn: Yes
 - `C`, `max_iter`에 대한 **9개 하이퍼파라미터 조합 탐색**
 - Precision, Recall, F1 등을 활용해 양성 클래스 예측 성능 분석
 
+
 ### 3. Team-wide Collaboration
 
-RFE 기반 특성 선택, PCA, KNN 및 앙상블 모델 비교는 팀 단위로 진행했습니다. 개인 담당 범위는 앞서 설명한 Decision Tree와 SVM의 구현·튜닝·평가입니다.
+3인 팀 프로젝트에서는 RFE 기반 특성 선택, PCA, KNN, Bagging, Random Forest, AdaBoost, LightGBM, XGBoost 및 Hard/Soft Voting 등 다양한 기법을 함께 비교했습니다.
 
-RFE 기반 특성 선택, PCA, KNN, Bagging, Random Forest, AdaBoost, LightGBM, XGBoost, Hard/Soft Voting.
+이 중 **개인적으로 담당한 모델 구현·하이퍼파라미터 튜닝·평가 범위는 Decision Tree와 SVM**입니다. 그 외 모델은 팀 공동 실험으로 구분하며, 수업 당시의 결과를 현재 공개된 평가 파이프라인에서 모두 재실험한 것으로 표현하지 않습니다.
 
 ---
 
@@ -280,9 +281,9 @@ LinearSVC의 ROC-AUC와 AP는 `decision_function()` 점수를 사용해 계산�
 
 ### Interpretation
 
-- **Accuracy alone is insufficient.** DummyClassifier는 모든 고객을 비이탈로 예측해 Accuracy 0.7341을 기록했지만, 실제 이탈 고객은 한 명도 탐지하지 못했습니다.
-- **Tuning involves trade-offs.** Decision Tree는 튜닝 후 전반적인 분류 성능이 개선됐지만, Recall이 소폭 감소했습니다.
-- **A simpler model can remain competitive.** Logistic Regression baseline은 이번 테스트에서 개별 Decision Tree·SVM 모델보다 높은 AP와 F1을 기록했습니다.
+- **Accuracy만으로는 모델 성능을 충분히 판단할 수 없습니다.** DummyClassifier는 모든 고객을 비이탈로 예측해 Accuracy 0.7341을 기록했지만, 실제 이탈 고객은 한 명도 탐지하지 못했습니다.
+- **하이퍼파라미터 튜닝에는 지표 간 상충관계가 존재합니다.** Decision Tree는 튜닝 후 Accuracy·Precision·F1·ROC-AUC·AP가 개선됐지만, Recall은 소폭 감소했습니다.
+- **복잡한 모델이 항상 더 좋은 성능을 보이는 것은 아닙니다.** Logistic Regression 기준 모델은 이번 테스트에서 개별 Decision Tree·SVM 모델보다 높은 AP와 F1을 기록했습니다.
 
 Dummy와 Logistic Regression은 RFE 없이 46개 전처리 특성을 사용하고, Decision Tree·SVM은 RFE로 선택된 20개 특성을 사용합니다. 따라서 모든 모델이 완전히 동일한 입력 특성 구성이라고 주장하지 않습니다.
 
@@ -310,14 +311,14 @@ Dummy와 Logistic Regression은 RFE 없이 46개 전처리 특성을 사용하�
 
 2025년 팀 프로젝트에서는 개인 담당인 Decision Tree·SVM 외에도 다음 실험을 수행했습니다.
 
-| Category | Models / Methods |
+| 구분 | 모델·방법 |
 |---|---|
-| Feature Selection | Logistic Regression RFE |
-| Dimensionality Reduction | PCA (20 → 7 components) |
-| Instance-based Learning | KNN, PCA + KNN |
-| Bagging | Bagging, Random Forest |
-| Boosting | AdaBoost, XGBoost, LightGBM |
-| Ensemble Combination | Hard/Soft Voting |
+| 특성 선택 | Logistic Regression RFE |
+| 차원 축소 | PCA (20 → 7 Components) |
+| 인스턴스 기반 학습 | KNN, PCA + KNN |
+| 배깅 | Bagging, Random Forest |
+| 부스팅 | AdaBoost, XGBoost, LightGBM |
+| 앙상블 결합 | Hard/Soft Voting |
 
 수업 당시 팀 실험에서 **AdaBoost의 ROC-AUC는 약 0.847**로 기록됐습니다.
 
@@ -331,19 +332,21 @@ Dummy와 Logistic Regression은 RFE 없이 46개 전처리 특성을 사용하�
 
 ---
 
+
 ## 🔧 Engineering Decisions & Validation
 
-| Concern | Engineering Decision | Verification |
+| 검토 항목 | 설계 결정 | 검증 방법 |
 |---|---|---|
-| Feature Selection Leakage | Fit preprocessing and RFE inside each CV training fold | Fold-isolation tests |
-| Input Feature Count | Use all 20 RFE-selected features | Feature-count and ordering tests |
-| SVM Feature Scaling | Fit StandardScaler on training data only | Preprocessing tests |
-| Model Selection | Select hyperparameters using cross-validation AP | 81 CV search records |
-| Decision Tree Interpretation | Visualize the evaluated fitted estimator with matching feature names | Visualization tests |
-| Class Imbalance | Evaluate Recall, F1, ROC-AUC, and AP alongside Accuracy | Held-out test metrics |
-| Reproducibility | Record split seed, dependencies, source hashes, and result artifacts | Experiment manifest and artifact validation |
+| 특성 선택 과정의 데이터 누수 | 전처리와 RFE를 각 교차검증 훈련 Fold 내부에서만 학습하여 테스트 데이터의 정보 유입 방지 | Fold별 학습 데이터 격리 테스트 |
+| 입력 특성 수 일치 | RFE에서 선택한 20개 특성을 빠짐없이 분류기 입력으로 사용 | 특성 수 및 입력 순서 검증 테스트 |
+| SVM 입력 스케일링 | 훈련 데이터에서 학습한 StandardScaler를 검증·테스트 데이터에 동일하게 적용 | 전처리 및 스케일링 테스트 |
+| 하이퍼파라미터 선택 | 훈련 데이터 내부 5-Fold 교차검증의 평균 AP를 기준으로 최적 설정 선택 | 81개 탐색 결과 및 모델 선택 테스트 |
+| Decision Tree 시각화 | 실제 평가에 사용한 학습 완료 모델과 해당 모델의 특성명을 사용하여 트리 시각화 | 모델·특성명 정합성 테스트 |
+| 클래스 불균형 평가 | Accuracy와 함께 Recall·F1·ROC-AUC·AP를 측정하여 이탈 고객 탐지 성능 확인 | 독립 테스트셋 평가 지표 |
+| 실험 재현성 | 데이터 분할 Seed, 라이브러리 버전, 소스코드 SHA-256 및 결과 산출물 기록 | 실험 Manifest 및 산출물 검증 |
 
-The model configurations are fixed through training-data cross-validation before the held-out test set is evaluated.
+하이퍼파라미터는 훈련 데이터 내부의 교차검증 결과로 확정하며, 별도로 분리한 테스트셋은 최종 성능 평가에만 사용합니다.
+
 
 ---
 
@@ -449,7 +452,7 @@ python -m scripts.smoke
 python -m scripts.validate_artifacts results --full
 ```
 
-저장된 모델 지표·81개 CV 결과·특성 선택 정보·파일 해시의 정합성을 확인합니다.
+저장된 모델 지표, 81개 하이퍼파라미터 탐색 결과, 특성 선택 정보, 산출물 SHA-256 및 현재 소스코드와 실험 기록의 일치 여부를 검증합니다. 이 과정은 전체 모델을 다시 학습하거나 원본 데이터로 성능 지표를 재계산하지는 않습니다.
 
 ### 4. Download Dataset
 
@@ -460,6 +463,8 @@ python -m scripts.download_data --output data/Telco-Customer-Churn.csv
 IBM 공식 공개 CSV를 다운로드하고 schema 및 checksum metadata를 생성합니다. 네트워크 연결이 필요합니다.
 
 데이터셋은 저장소에 직접 포함하지 않습니다.
+
+새로 다운로드한 CSV가 기존 실험에 사용한 데이터와 동일한지 확인하려면 [RUNBOOK.md](RUNBOOK.md)의 SHA-256 검증 절차를 수행하세요. 데이터의 컬럼 구조가 같더라도 파일 내용이 다르면 기존 실험 결과와 직접 비교할 수 없습니다.
 
 ### 5. Reproduce Full Experiment
 
@@ -537,7 +542,9 @@ python -m scripts.validate_artifacts results-rerun --full
 ---
 
 <div align="center">
-    
-**From model experimentation to trustworthy, reproducible evaluation.**
+
+**데이터 정제 → 누수 없는 특성 선택 → 교차검증 기반 모델 선택 → 독립 테스트 평가**
+
+_신뢰할 수 있는 모델 비교는 높은 성능 수치뿐 아니라, 데이터 누수를 방지하고 평가 조건과 한계를 명확하게 검증하는 데서 시작됩니다._
 
 </div>
