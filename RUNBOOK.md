@@ -1,135 +1,91 @@
-
 # Reproduction Guide
 
-## Requirements
+## Setup
 
-Python 3.11 또는 3.12 환경이 필요합니다.
+Python 3.11 또는 3.12를 사용합니다. 공개 결과는 Windows·Python 3.11.3에서 생성했고, GitHub Actions는 Linux·Python 3.12에서 오프라인 검사를 실행합니다. 저장소를 복제하고 가상환경을 만듭니다.
 
-저장소의 전체 실험 결과는 Windows / Python 3.11.3 환경에서 생성했으며, GitHub Actions는 Linux / Python 3.12 환경에서 자동화 테스트를 수행합니다.
+~~~bash
+git clone https://github.com/tangerineYR/telco-churn-ml.git
+cd telco-churn-ml
+python -m venv .venv
+~~~
 
-프로젝트 루트에서 의존성을 설치합니다.
+Linux·macOS에서는 `source .venv/bin/activate`, Windows PowerShell에서는 `.\.venv\Scripts\Activate.ps1`로 가상환경을 활성화한 뒤 설치합니다.
 
-```bash
+~~~bash
 python -m pip install -r requirements.txt
-```
+~~~
 
-별도의 가상환경을 사용하는 것을 권장합니다.
+이 문서의 Python 명령은 가상환경을 활성화한 터미널에서 저장소 루트를 기준으로 실행합니다. [의존성 버전](requirements.txt)
 
-## Run Tests
+## Offline Checks
 
-단위 테스트와 합성 데이터 스모크 테스트는 실제 Telco 데이터셋이나 네트워크 연결 없이 실행할 수 있습니다.
+실제 Telco CSV 없이 실행할 수 있습니다.
 
-```bash
+~~~bash
 python -m unittest discover -s tests -v
 python -m scripts.smoke
-```
-
-단위 테스트는 데이터 정제, 데이터 분할, Fold별 전처리 및 특성 선택, 모델 입력 정합성, 평가 지표 등을 검증합니다.
-
-스모크 테스트는 합성 데이터로 학습·평가 파이프라인을 실행하며, 전체 81개 하이퍼파라미터 조합을 탐색하지는 않습니다.
-
-## Download the Dataset
-
-IBM이 공개한 Telco Customer Churn CSV를 다운로드합니다.
-
-```bash
-python -m scripts.download_data --output data/Telco-Customer-Churn.csv
-```
-
-다운로드 스크립트는 데이터 구조를 검증하고 SHA-256 및 출처 메타데이터를 기록합니다. 이미 존재하는 파일은 덮어쓰지 않습니다.
-
-기존 실험과 동일한 데이터인지 확인하려면 다음 명령을 실행하세요.
-
-```powershell
-python -c "import hashlib; from pathlib import Path; p=Path('data/Telco-Customer-Churn.csv'); actual=hashlib.sha256(p.read_bytes()).hexdigest(); expected='16320c9c1ec72448db59aa0a26a0b95401046bef5d02fd3aeb906448e3055e91'; print('SHA-256:', actual); assert actual == expected, 'Dataset checksum mismatch'"
-```
-
-체크섬이 일치하지 않으면 기존 실험에 사용한 데이터와 바이트가 다르다는 뜻입니다. 이 경우 데이터 출처와 버전을 확인한 뒤 재실험 여부를 판단해야 합니다.
-
-이미 보유한 호환 CSV도 `--data-path` 옵션으로 지정할 수 있지만, 기존 결과의 재현을 주장하려면 데이터 동일성을 별도로 확인해야 합니다.
-
-## Run the Experiment
-
-전체 실험을 실행합니다.
-
-```bash
-python -m scripts.run_experiment --data-path data/Telco-Customer-Churn.csv --seed 42 --output-dir results-rerun --n-jobs 1
-```
-
-이 명령은 다음을 수행합니다.
-
-- Stratified 70:30 훈련·테스트 분할
-- 훈련 데이터 내부의 Stratified 5-Fold 교차검증
-- Fold별 전처리 및 Logistic Regression 기반 RFE
-- Decision Tree 72개 하이퍼파라미터 조합 탐색
-- LinearSVC 9개 하이퍼파라미터 조합 탐색
-- 기본 분류기 및 비교 모델을 포함한 총 7개 모델 평가
-- 결과 지표, 선택 특성, 탐색 결과 및 시각화 저장
-
-출력 디렉터리는 비어 있어야 합니다. 기존 `results/`의 보존을 위해 새로운 디렉터리를 지정하세요.
-
-전체 실험 대신 일부 모델만 실행하려면 `--models` 옵션을 사용할 수 있습니다.
-
-지원하는 그룹은 `decision_tree`, `linear_svm`, `rbf_svm`, `baselines`입니다.
-
-## Validate Results
-
-새로 생성한 전체 실험 결과를 검증합니다.
-
-```bash
-python -m scripts.validate_artifacts results-rerun --full
-```
-
-저장소에 커밋된 기존 결과도 동일한 방법으로 확인할 수 있습니다.
-
-```bash
 python -m scripts.validate_artifacts results --full
-```
+~~~
 
-검증 대상은 다음과 같습니다.
+첫 명령은 단위 테스트 16개를 실행합니다. 두 번째 명령은 합성 데이터에서 트리·LinearSVC 탐색 조합을 각각 하나로 줄여 학습과 평가 흐름을 확인합니다. 세 번째 명령은 공개 실험의 모델 7개, 탐색 기록 81개, 지표·특성·그림·소스 파일을 실험 기록과 대조합니다. 원본 데이터로 지표를 다시 계산하려면 아래 전체 실험을 실행합니다. [CI 워크플로](.github/workflows/ci.yml)
 
-- 실험 완료 상태와 모델 수
-- Decision Tree 72개 및 LinearSVC 9개 탐색 결과
-- 모델별 평가 지표와 선택 특성 수
-- 혼동행렬과 테스트 표본 수의 일치 여부
-- 저장된 산출물의 SHA-256
-- 현재 소스코드와 실험 당시 기록된 소스 SHA-256의 일치 여부
+## Dataset
 
-이 검증은 저장된 산출물의 정합성을 확인하는 절차이며, 전체 모델을 다시 학습하지 않습니다.
+IBM 공개 저장소의 `master`에서 CSV를 받습니다. 다운로드 명령은 기존 CSV 파일을 덮어쓰지 않으며, 21개 열과 정제 조건을 검증한 뒤 옆에 `Telco-Customer-Churn.provenance.json`을 생성합니다.
 
-## Experiment Configuration
+~~~bash
+python -m scripts.download_data --output data/Telco-Customer-Churn.csv
+~~~
 
-**데이터 분할:** Stratified 70% Train / 30% Test, Seed 42
+공개 결과와 같은 버전의 입력이 필요하면 고정된 IBM CSV를 내려받아 같은 위치에 둘 수 있습니다. 이미 확보한 CSV는 실험 명령의 `--data-path`로 지정합니다. CSV 옆에 같은 이름의 `.provenance.json`이 있으면 실험 실행 시 두 파일이 일치하는지 확인합니다. 공개 실험의 원본은 7,043행이며, 정제 후 7,032행으로 평가합니다. [고정된 IBM 원본 CSV](https://github.com/IBM/telco-customer-churn-on-icp4d/blob/1fd6fd70906479be1712e64cfc0ea89f58466629/data/Telco-Customer-Churn.csv) · [출처 기록](historical/dataset_provenance.json)
 
-**교차검증:** 훈련 데이터 내부의 Stratified 5-Fold CV
+## Full Experiment
 
-**수치형 전처리:** StandardScaler
+전체 훈련에는 트리 72개와 LinearSVC 9개 조합의 5겹 교차검증 및 모델 7개의 테스트 평가가 포함됩니다. 아래 두 명령으로 결과를 새 폴더에 생성하고 그 결과를 검사합니다.
 
-**범주형 전처리:** OneHotEncoder
+~~~bash
+python -m scripts.run_experiment --data-path data/Telco-Customer-Churn.csv --seed 42 --output-dir results-rerun --n-jobs 1
+python -m scripts.validate_artifacts results-rerun --full
+~~~
 
-**특성 선택:** Logistic Regression 기반 RFE로 20개 특성을 선택하며, 학습은 각 CV 훈련 Fold 내부에서 수행
+출력 경로에는 새 폴더나 비어 있는 폴더를 지정합니다. `--n-jobs 1`은 공개 실험의 설정이며, 탐색을 한 작업에서 실행해 학습 경고를 `warnings.json`에 수집합니다. 사용한 라이브러리와 실행 환경은 `experiment_manifest.json`에 기록되며, 환경이 다르면 수치가 일부 달라질 수 있습니다.
 
-**모델 선택:** 평균 CV Average Precision(AP)이 가장 높은 설정 선택. 점수가 정확히 동일하면 ParameterGrid의 첫 번째 설정 사용
+| 모델 | 탐색한 하이퍼파라미터 | 조합 수 |
+| --- | --- | ---: |
+| Decision Tree | `criterion`은 `gini`, `entropy`. `max_depth`는 `3`, `5`, `7`, `None`. `min_samples_split`은 `2`, `5`, `10`. `min_samples_leaf`는 `1`, `2`, `4`. | 72 |
+| LinearSVC | `C`는 `0.1`, `1`, `10`. `max_iter`는 `1000`, `5000`, `10000`. `dual="auto"`로 고정. | 9 |
 
-**최종 평가:** 모델 설정을 확정한 뒤 분리된 테스트셋에서 수행
+시드 `42`의 70:30 층화 분할 뒤, 훈련셋에서 셔플을 적용한 층화 5겹 교차검증을 수행합니다. 검증 평균 AP가 가장 높은 조합을 선택하고, 점수가 같으면 `ParameterGrid` 순서가 앞선 조합을 택합니다. 선택한 설정의 전처리기·RFE·분류기를 훈련셋 전체로 다시 학습한 뒤 테스트셋을 평가합니다. [공개 실험 설정](results/design.json) · [모델과 탐색 코드](telco_churn/models.py)
 
-**비교 모델:** DummyClassifier와 Logistic Regression은 RFE 없이 전처리된 전체 특성을 사용
+## Partial Experiment
 
-LinearSVC는 `dual="auto"`로 설정합니다. 별도의 결정 임계값 튜닝은 수행하지 않습니다.
+`--models` 뒤에 실행할 모델 그룹을 한 개 이상 지정할 수 있습니다. 예를 들어 비교 모델 두 개만 학습하고 결과를 검사하려면 아래 명령을 실행합니다.
 
-학습 과정의 경고는 `warnings.json`에 기록합니다. `--n-jobs 1`은 단일 프로세스에서 경고를 수집할 때 사용하는 권장 설정입니다.
+~~~bash
+python -m scripts.run_experiment --data-path data/Telco-Customer-Churn.csv --seed 42 --output-dir work/results-baselines --models baselines --n-jobs 1
+python -m scripts.validate_artifacts work/results-baselines
+~~~
 
-실행 환경, 라이브러리 버전, 소스코드 및 산출물 SHA-256은 `experiment_manifest.json`에 기록됩니다. 실행 환경이나 라이브러리 버전이 달라지면 수치 결과가 일부 달라질 수 있습니다.
+`--full`은 일곱 모델과 81개 탐색 기록을 요구하는 전체 결과 검사 옵션입니다. 위 비교 모델 실행은 모델 2개·탐색 0개로 검증됩니다.
 
-## Continuous Integration
+| 그룹 | 포함되는 모델 |
+| --- | --- |
+| `decision_tree` | 기본 Decision Tree와 튜닝한 Decision Tree |
+| `linear_svm` | 기본 LinearSVC와 튜닝한 LinearSVC |
+| `rbf_svm` | RBF SVM |
+| `baselines` | 최빈 클래스 모델과 로지스틱 회귀 |
 
-GitHub Actions는 Python 3.12 환경에서 다음을 실행합니다.
+## Output Files
 
-- 단위 테스트
-- 합성 데이터 스모크 테스트
-- 커밋된 실험 산출물 검증
-- Git 변경사항의 공백 오류 검사
+| 파일 | 확인할 내용 |
+| --- | --- |
+| `design.json` | 배정된 훈련·테스트 행 수, 클래스 분포, 교차검증과 선택 기준 |
+| `metrics.json` | 모델별 테스트 지표, 혼동행렬, 사용한 점수 종류, 선택한 설정 |
+| `cv_search_results.csv` | 훈련셋 내부의 조합별·폴드별 검증 지표와 순위 |
+| `selected_features.json` | 재학습 모델별 특성명과 입력 순서 |
+| `experiment_manifest.json` | 패키지 버전, 실행 환경과 설정, 검증에 사용하는 소스·결과 파일 기록 |
+| `warnings.json` | 실행 중 수집한 경고 |
+| `figures/` | 선택한 모델에 따라 ROC·정밀도–재현율 곡선, 튜닝 트리와 모델별 혼동행렬 |
 
-전체 81개 하이퍼파라미터 탐색은 CI에서 반복 실행하지 않습니다.
-
-현재 검증기는 소스코드 SHA-256을 검사하므로, 학습·평가 코드를 변경한 경우에는 기존 실험 결과와의 정합성을 다시 확인해야 합니다.
+결과 검증기는 지정한 폴더의 산출물과 현재 소스 파일을 실행 기록과 대조합니다. 학습·평가 코드를 변경한 뒤의 결과를 검증하려면 그 코드에서 실행한 폴더를 지정합니다. [저장 결과 검증 코드](scripts/validate_artifacts.py)
